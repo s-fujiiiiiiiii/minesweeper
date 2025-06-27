@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 
-function Cell() {
-    const [opened, setOpened] = useState(false);
-
-    const handleClick = () => {
-        setOpened(true);
-    };
+function Cell({ cellData, onClick }) {
 
   const cellStyle = {
     width: '30px',
@@ -14,15 +9,19 @@ function Cell() {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: opened ? '#ccc' : '#eee',
+    backgroundColor: cellData.opened ? '#ccc' : '#eee',
     cursor: 'pointer',
     userSelect: 'none',
+    fontSize: '20px',
   };
+
+  // 地雷があるセルで開いているなら💣マーク表示
+  const content = cellData.opened ? (cellData.hasMine ? '💣' : '') : '';
 
   
   return (
-    <div style={cellStyle} onClick={handleClick}>
-      {opened ? '💣' : ''}
+    <div style={cellStyle} onClick={onClick}>
+      {content}
     </div>
   );
 }
