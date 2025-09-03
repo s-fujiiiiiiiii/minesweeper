@@ -7,7 +7,7 @@ function App() {
   const difficulties = {
     easy: { rows: 5, cols: 5, mines: 5 },
     medium: { rows: 10, cols: 10, mines: 20 },
-    hard: { rows: 20, cols: 20, mines: 50 },
+    hard: { rows: 15, cols: 15, mines: 40 },
   };
 
   return (
@@ -18,7 +18,7 @@ function App() {
         <div>
           <button onClick={() => setSettings(difficulties.easy)}>初級 (5x5)</button>
           <button onClick={() => setSettings(difficulties.medium)}>中級 (10x10)</button>
-          <button onClick={() => setSettings(difficulties.hard)}>上級 (20x20)</button>
+          <button onClick={() => setSettings(difficulties.hard)}>上級 (15x15)</button>
         </div>
       )}
 

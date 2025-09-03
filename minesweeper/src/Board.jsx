@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import Cell from "./Cell";
 
 function Board({ rows, cols, mines }) {
-  // 盤面の初期化
+  // 8方向
+  const directions = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],          [0, 1],
+    [1, -1], [1, 0], [1, 1],
+  ];
+
+  // 盤面初期化
   const [board, setBoard] = useState(() => {
     const newBoard = [];
     for (let r = 0; r < rows; r++) {
@@ -25,12 +32,6 @@ function Board({ rows, cols, mines }) {
     }
 
     // 周囲の地雷数を計算
-    const directions = [
-      [-1, -1], [-1, 0], [-1, 1],
-      [0, -1], [0, 1],
-      [1, -1], [1, 0], [1, 1],
-    ];
-
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         if (newBoard[r][c].hasMine) continue;
@@ -49,16 +50,30 @@ function Board({ rows, cols, mines }) {
     return newBoard;
   });
 
-  // クリックでセルを開く
+  // セルを開く（再帰で空白マスも開く）
   const handleClick = (row, col) => {
     setBoard(prevBoard => {
       const newBoard = prevBoard.map(r => r.map(cell => ({ ...cell })));
-      newBoard[row][col].opened = true;
+
+      const openCell = (r, c) => {
+        if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+        const cell = newBoard[r][c];
+        if (cell.opened) return;
+
+        cell.opened = true;
+
+        if (!cell.hasMine && cell.neighborMines === 0) {
+          directions.forEach(([dr, dc]) => openCell(r + dr, c + dc));
+        }
+      };
+
+      openCell(row, col);
+
       return newBoard;
     });
   };
 
-  // 盤面css
+  // 盤面CSS
   const boardStyle = {
     display: "grid",
     gridTemplateColumns: `repeat(${cols}, 40px)`,

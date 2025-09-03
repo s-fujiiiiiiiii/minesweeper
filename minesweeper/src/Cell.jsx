@@ -24,6 +24,7 @@ function Cell({ cellData, onClick }) {
         alignItems: "center",
         cursor: "pointer",
         backgroundColor: cellData.opened ? "#ddd" : "#eee",
+        userSelect: "none",
       }}
     >
       {content}
