@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import Cell from './Cell';
-
+import Cell from "./Cell";
 
 function Board({ rows, cols, mines }) {
   // 盤面の初期化
   const [board, setBoard] = useState(() => {
     const newBoard = [];
     for (let r = 0; r < rows; r++) {
-      const row = []
+      const row = [];
       for (let c = 0; c < cols; c++) {
-        row.push({ opened: false, hasMine: false });
+        row.push({ opened: false, hasMine: false, neighborMines: 0 });
       }
       newBoard.push(row);
     }
@@ -20,10 +19,33 @@ function Board({ rows, cols, mines }) {
       const randRow = Math.floor(Math.random() * rows);
       const randCol = Math.floor(Math.random() * cols);
       if (!newBoard[randRow][randCol].hasMine) {
-        newBoard[randRow][randCol].hasMine =true;
+        newBoard[randRow][randCol].hasMine = true;
         minesPlaced++;
       }
     }
+
+    // 周囲の地雷数を計算
+    const directions = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1], [0, 1],
+      [1, -1], [1, 0], [1, 1],
+    ];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (newBoard[r][c].hasMine) continue;
+        let count = 0;
+        directions.forEach(([dr, dc]) => {
+          const nr = r + dr;
+          const nc = c + dc;
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+            if (newBoard[nr][nc].hasMine) count++;
+          }
+        });
+        newBoard[r][c].neighborMines = count;
+      }
+    }
+
     return newBoard;
   });
 
@@ -33,21 +55,27 @@ function Board({ rows, cols, mines }) {
       const newBoard = prevBoard.map(r => r.map(cell => ({ ...cell })));
       newBoard[row][col].opened = true;
       return newBoard;
-    })
-  }
+    });
+  };
 
   // 盤面css
   const boardStyle = {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${cols}, 30px)`,
-    margin: '0 auto',
+    display: "grid",
+    gridTemplateColumns: `repeat(${cols}, 40px)`,
+    margin: "20px auto",
   };
 
   return (
     <div style={boardStyle}>
       {board.map((row, r) =>
         row.map((cell, c) => (
-          <Cell key={`${r}-${c}`} row={r} col={c} cellData={cell} onClick={() => handleClick(r, c)} />
+          <Cell
+            key={`${r}-${c}`}
+            row={r}
+            col={c}
+            cellData={cell}
+            onClick={() => handleClick(r, c)}
+          />
         ))
       )}
     </div>

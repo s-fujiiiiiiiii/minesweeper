@@ -1,11 +1,30 @@
-import React from 'react';
-import Board from './Board';
+import React, { useState } from "react";
+import Board from "./Board";
 
 function App() {
+  const [settings, setSettings] = useState(null);
+
+  const difficulties = {
+    easy: { rows: 5, cols: 5, mines: 5 },
+    medium: { rows: 10, cols: 10, mines: 20 },
+    hard: { rows: 20, cols: 20, mines: 50 },
+  };
+
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div style={{ textAlign: "center" }}>
       <h1>Minesweeper</h1>
-      <Board rows={10} cols={10} mines={10} />
+
+      {!settings && (
+        <div>
+          <button onClick={() => setSettings(difficulties.easy)}>初級 (5x5)</button>
+          <button onClick={() => setSettings(difficulties.medium)}>中級 (10x10)</button>
+          <button onClick={() => setSettings(difficulties.hard)}>上級 (20x20)</button>
+        </div>
+      )}
+
+      {settings && (
+        <Board rows={settings.rows} cols={settings.cols} mines={settings.mines} />
+      )}
     </div>
   );
 }

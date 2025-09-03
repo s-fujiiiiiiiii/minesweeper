@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 
 function Cell({ cellData, onClick }) {
+  let content = "";
+  if (cellData.opened) {
+    if (cellData.hasMine) {
+      content = "💣";
+    } else if (cellData.neighborMines > 0) {
+      content = cellData.neighborMines;
+    }
+  }
 
-  const cellStyle = {
-    width: '30px',
-    height: '30px',
-    border: '1px solid #999',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: cellData.opened ? '#ccc' : '#eee',
-    cursor: 'pointer',
-    userSelect: 'none',
-    fontSize: '20px',
-  };
-
-  // 地雷があるセルで開いているなら💣マーク表示
-  const content = cellData.opened ? (cellData.hasMine ? '💣' : '') : '';
-
-  
   return (
-    <div style={cellStyle} onClick={onClick}>
+    <div
+      onClick={onClick}
+      style={{
+        width: 40,
+        height: 40,
+        fontSize: 20,
+        textAlign: "center",
+        border: "1px solid #999",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+        backgroundColor: cellData.opened ? "#ddd" : "#eee",
+      }}
+    >
       {content}
     </div>
   );
