@@ -9,7 +9,7 @@ function Board({ rows, cols, mines }) {
     [1, -1], [1, 0], [1, 1],
   ];
 
-  // 盤面初期化
+  // 盤面（最初は爆弾なし）
   const [board, setBoard] = useState(() => {
     const newBoard = [];
     for (let r = 0; r < rows; r++) {
@@ -19,12 +19,27 @@ function Board({ rows, cols, mines }) {
       }
       newBoard.push(row);
     }
+    return newBoard;
+  });
 
-    // 地雷ランダム配置
+  // ゲーム状態
+  const [gameOver, setGameOver] = useState(false);
+  const [firstClick, setFirstClick] = useState(true);
+
+  // 地雷を配置する関数
+  function placeMines(board, safeRow, safeCol) {
+    const newBoard = board.map(r => r.map(cell => ({ ...cell })));
     let minesPlaced = 0;
+
     while (minesPlaced < mines) {
       const randRow = Math.floor(Math.random() * rows);
       const randCol = Math.floor(Math.random() * cols);
+
+      // 最初にクリックしたセルとその周囲には爆弾を置かない
+      if (Math.abs(randRow - safeRow) <= 1 && Math.abs(randCol - safeCol) <= 1) {
+        continue;
+      }
+
       if (!newBoard[randRow][randCol].hasMine) {
         newBoard[randRow][randCol].hasMine = true;
         minesPlaced++;
@@ -48,26 +63,43 @@ function Board({ rows, cols, mines }) {
     }
 
     return newBoard;
-  });
+  }
 
-  // セルを開く（再帰で空白マスも開く）
+  // セルを開く処理
   const handleClick = (row, col) => {
     setBoard(prevBoard => {
-      const newBoard = prevBoard.map(r => r.map(cell => ({ ...cell })));
+      let newBoard = prevBoard.map(r => r.map(cell => ({ ...cell })));
 
-      const openCell = (r, c) => {
-        if (r < 0 || r >= rows || c < 0 || c >= cols) return;
-        const cell = newBoard[r][c];
-        if (cell.opened) return;
+      // 最初のクリックで地雷を配置
+      if (firstClick) {
+        newBoard = placeMines(newBoard, row, col);
+        setFirstClick(false);
+      }
 
-        cell.opened = true;
+      const cell = newBoard[row][col];
+      if (cell.opened || gameOver) return newBoard;
 
-        if (!cell.hasMine && cell.neighborMines === 0) {
-          directions.forEach(([dr, dc]) => openCell(r + dr, c + dc));
-        }
-      };
+      if (cell.hasMine) {
+        // 爆弾クリック → ゲームオーバー
+        setGameOver(true);
+        newBoard.forEach(r => r.forEach(c => {
+          if (c.hasMine) c.opened = true;
+        }));
+      } else {
+        // 空白セルは再帰的に展開
+        const openCell = (r, c) => {
+          if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+          const cur = newBoard[r][c];
+          if (cur.opened) return;
 
-      openCell(row, col);
+          cur.opened = true;
+
+          if (cur.neighborMines === 0) {
+            directions.forEach(([dr, dc]) => openCell(r + dr, c + dc));
+          }
+        };
+        openCell(row, col);
+      }
 
       return newBoard;
     });
