@@ -104,6 +104,10 @@ function Board({ rows, cols, mines }) {
     });
   };
 
+  // フラッグの数を数える
+    const flaggedCount = board.flat().filter(cell => cell.flagged).length;
+    const remainingMines = mines - flaggedCount
+
   // CSS
   const boardStyle = {
     display: "grid",
@@ -112,6 +116,11 @@ function Board({ rows, cols, mines }) {
   };
 
   return (
+    <div>
+      {/* 残り爆弾数表示 */}
+      <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "20px" }}>
+      🚩 {remainingMines}/{mines}
+      </div>
     <div style={boardStyle}>
       {board.map((row, r) =>
         row.map((cell, c) => (
@@ -126,6 +135,7 @@ function Board({ rows, cols, mines }) {
         ))
       )}
     </div>
+  </div>
   );
 }
 
